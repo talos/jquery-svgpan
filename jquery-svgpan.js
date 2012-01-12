@@ -35,44 +35,6 @@
    implied, of John Krauss.
 **/
 
-/**
-   DOCUMENTATION
-
-   This is an an adaptation of Andrea Leofreddi's SVGPan library,
-   version 1.2.2, for use as a jQuery plugin.
-
-   When called upon a SVG element(s), adds all the capabilities of
-   Andrea Leofreddi's SVGPan library to those elements.  Non-svg
-   elements will be silently ignored.
-
-   This would enable SVGPan for all SVGs currently on the page.
-
-   $('svg').svgPan();
-
-   This would enable SVGPan for a single element (provided it is an SVG).
-
-   $('#my_svg').svgPan();
-
-   You can configure the behaviour of the pan/zoom/drag by passing
-   arguments.
-
-   enablePan: Boolean enable or disable panning (default enabled)
-
-   enableZoom: Boolean enable or disable zooming (default enabled)
-
-   enableDrag: Boolean enable or disable dragging (default disabled)
-
-   zoomScale: Float zoom sensitivity, defaults to .2
-
-   $(selector).svgPan(enablePan, enableZoom, enableDrag, zoomScale);
-*/
-
-/**
-   VERSIONS
-
-   0.1.0 initial release
-**/
-
 // SVGPan library 1.2.2 license and documentation:
 
 /** 
@@ -144,14 +106,11 @@
  * or implied, of Andrea Leofreddi.
  */
 
-/**
-   CODE
-**/
 (function($){
     var init = function(root, enablePan, enableZoom, enableDrag, zoomScale) {
 
         var state = 'none',
-        //svgRoot = null,
+        svgRoot = null,
         stateTarget,
         stateOrigin,
         stateTf,
@@ -159,27 +118,27 @@
         /**
          * Retrieves the root element for SVG manipulation. The element is then cached into the svgRoot global variable.
          */
-        // getRoot = function(root) {
-        //     if(svgRoot == null) {
-        //         //var r = $el.find("#viewport") ? $el.find("#viewport") : $el.find('g').first(),
-        //         //t = r;
-        //         var r = root.getElementById("viewport") ? root.getElementById("viewport") : root.documentElement, t = r;
+        getRoot = function(root) {
+            if(svgRoot == null) {
+                //var r = $el.find("#viewport") ? $el.find("#viewport") : $el.find('g').first(),
+                //t = r;
+                var r = root.getElementById("viewport") ? root.getElementById("viewport") : root.documentElement, t = r;
 
-        //         while(t != root) {
-        //             if(t.getAttribute("viewBox")) {
-        //                 setCTM(r, t.getCTM());
+                while(t != root) {
+                    if(t.getAttribute("viewBox")) {
+                        setCTM(r, t.getCTM());
 
-        //                 t.removeAttribute("viewBox");
-        //             }
+                        t.removeAttribute("viewBox");
+                    }
 
-        //             t = t.parentNode;
-        //         }
+                    t = t.parentNode;
+                }
 
-        //         svgRoot = r;
-        //     }
+                svgRoot = r;
+            }
 
-        //     return svgRoot;
-        // },
+            return svgRoot;
+        },
 
         /**
          * Instance an SVGPoint object with given event coordinates.
