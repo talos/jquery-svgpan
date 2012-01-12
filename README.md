@@ -7,6 +7,8 @@ When called upon SVG element(s), this will add all the capabilities of
 Andrea Leofreddi's SVGPan library to those elements.  Non-SVG elements
 will be silently ignored.
 
+[See it in action!](http://talos.github.com/jquery-svgpan/demo.html)
+
 ### Usage
 
 You can configure the behaviour of the pan/zoom/drag by passing
@@ -40,11 +42,15 @@ This would enable SVGPan for a single element (provided it is an SVG).
 
 ### Links
 
-Fork it at
+Andrea Leofreddi's original SVGPan library on Google code
+
+http://code.google.com/p/svgpan/
+
+Fork jquery-svgpan at
 
 http://www.github.com/talos/jquery-svgpan
 
-CDN it from
+CDN jquery-svgpan from
 
 http://talos.github.com/jquery-svgpan/jquery-svgpan.js
 
