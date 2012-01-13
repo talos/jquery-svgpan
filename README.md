@@ -19,6 +19,8 @@ work if you are embedding the SVG through some other means.
 You can configure the behaviour of the pan/zoom/drag by passing
 arguments.
 
+`viewportId`: String ID of the root SVG element.
+
 `enablePan`: Boolean enable or disable panning (default enabled)
 
 `enableZoom`: Boolean enable or disable zooming (default enabled)
@@ -28,21 +30,22 @@ arguments.
 `zoomScale`: Float zoom sensitivity, defaults to .2
 
 ```javascript
-    $(selector).svgPan(enablePan, enableZoom, enableDrag, zoomScale);
+    $(selector).svgPan(viewportId, enablePan, enableZoom, enableDrag, zoomScale);
 ```
 
 ### Examples
 
-This would enable SVGPan for all SVGs currently on the page.
+This would enable SVGPan for all SVGs currently on the page.  The
+element #viewport would be used as the viewport for each.
 
 ```javascript
-    $('svg').svgPan();
+    $('svg').svgPan('viewport');
 ```
 
 This would enable SVGPan for a single element (provided it is an SVG).
 
 ```javascript
-   $('#id').svgPan();
+   $('#id').svgPan('viewport');
 ```
 
 ### Links
