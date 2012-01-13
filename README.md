@@ -7,6 +7,11 @@ When called upon SVG element(s), this will add all the capabilities of
 Andrea Leofreddi's SVGPan library to those elements.  Non-SVG elements
 will be silently ignored.
 
+This is useful if you have SVG content sitting in the DOM.  For
+example, if you are generating graphics via the [d3
+visualization](http://mbostock.github.com/d3/) library.  It will not
+work if you are embedding the SVG through some other means.
+
 [See it in action!](http://talos.github.com/jquery-svgpan/demo.html)
 
 ### Usage

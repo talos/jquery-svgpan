@@ -107,38 +107,18 @@
  */
 
 (function($){
-    var init = function(root, enablePan, enableZoom, enableDrag, zoomScale) {
+    var init = function(root, svgRoot, enablePan, enableZoom, enableDrag, zoomScale) {
+        //console.log(root);
 
         var state = 'none',
-        svgRoot = null,
         stateTarget,
         stateOrigin,
         stateTf,
+        svgDoc = root,
 
-        /**
-         * Retrieves the root element for SVG manipulation. The element is then cached into the svgRoot global variable.
-         */
-        getRoot = function(root) {
-            if(svgRoot == null) {
-                //var r = $el.find("#viewport") ? $el.find("#viewport") : $el.find('g').first(),
-                //t = r;
-                var r = root.getElementById("viewport") ? root.getElementById("viewport") : root.documentElement, t = r;
+        $root = $(root),
+        isMouseOverElem = false,
 
-                while(t != root) {
-                    if(t.getAttribute("viewBox")) {
-                        setCTM(r, t.getCTM());
-
-                        t.removeAttribute("viewBox");
-                    }
-
-                    t = t.parentNode;
-                }
-
-                svgRoot = r;
-            }
-
-            return svgRoot;
-        },
 
         /**
          * Instance an SVGPoint object with given event coordinates.
@@ -179,10 +159,30 @@
         },
 
         /**
+          * Handle mouseenter event.  This has been added to stop ignoring
+          * inputs when the mouse is over the element.
+          **/
+        handleMouseEnter = function(evt) {
+            isMouseOverElem = true;
+        },
+
+        /**
+          * Handle mouseleave event.  This has been added to ignore
+          * inputs when the mouse is not over the element.
+          **/
+        handleMouseLeave = function(evt) {
+            isMouseOverElem = false;
+        },
+
+        /**
          * Handle mouse wheel event.
          */
         handleMouseWheel = function(evt) {
             if(!enableZoom)
+                return;
+
+            // added, we only hit this if we're over this particular element
+            if(!isMouseOverElem)
                 return;
 
             if(evt.preventDefault)
@@ -190,7 +190,7 @@
 
             evt.returnValue = false;
 
-            var svgDoc = evt.target.ownerDocument;
+            //var svgDoc = evt.target.ownerDocument;
 
             var delta;
 
@@ -201,7 +201,8 @@
 
             var z = Math.pow(1 + zoomScale, delta);
 
-            var g = getRoot(svgDoc);
+            //var g = getRoot(svgDoc);
+            var g = svgRoot;
 
             var p = getEventPoint(evt);
 
@@ -222,21 +223,25 @@
          * Handle mouse move event.
          */
         handleMouseMove = function(evt) {
-            if(evt.preventDefault)
+
+            if(evt.preventDefault) {
                 evt.preventDefault();
+            }
 
             evt.returnValue = false;
 
-            var svgDoc = evt.target.ownerDocument;
+            //var svgDoc = evt.target.ownerDocument;
 
-            var g = getRoot(svgDoc);
+            //var g = getRoot(svgDoc);
 
-            if(state == 'pan' && enablePan) {
+            var g = svgRoot;
+
+            if(state === 'pan' && enablePan) {
                 // Pan mode
                 var p = getEventPoint(evt).matrixTransform(stateTf);
 
                 setCTM(g, stateTf.inverse().translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
-            } else if(state == 'drag' && enableDrag) {
+            } else if(state === 'drag' && enableDrag) {
                 // Drag mode
                 var p = getEventPoint(evt).matrixTransform(g.getCTM().inverse());
 
@@ -255,9 +260,13 @@
 
             evt.returnValue = false;
 
-            var svgDoc = evt.target.ownerDocument;
+            // bind our mousemove listener only when we have a mousedown
+            //$root.bind('mousemove', handleMouseMove );
 
-            var g = getRoot(svgDoc);
+            //var svgDoc = evt.target.ownerDocument;
+
+            //var g = getRoot(svgDoc);
+            var g = svgRoot;
 
             if(
                 evt.target.tagName == "svg" 
@@ -290,22 +299,27 @@
 
             evt.returnValue = false;
 
-            var svgDoc = evt.target.ownerDocument;
+            // unbind our mousemove listener immediately when we have a mouseup
+            //$root.unbind('mousemove', handleMouseMove );
+
+            //var svgDoc = evt.target.ownerDocument;
 
             if(state == 'pan' || state == 'drag') {
                 // Quit pan mode
                 state = '';
             }
-        }
+        };
 
         /**
          * Register handlers
          */
 
         // MODIFICATION: registers events through jQuery
-        $(root).bind('mouseup', handleMouseUp )
+        $root.bind('mouseup', handleMouseUp )
             .bind('mousedown', handleMouseDown )
-            .bind('mousemove', handleMouseMove );
+            .bind('mousemove', handleMouseMove ) // this is now bound & unbound upon mousedown & mouseup
+            .bind('mouseenter', handleMouseEnter ) // added 
+            .bind('mouseleave', handleMouseLeave ); // added
 
         if(navigator.userAgent.toLowerCase().indexOf('webkit') >= 0)
             window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
@@ -317,22 +331,29 @@
     /**
        Enable SVG panning on an SVG element.
 
+       @param viewport the ID of an element to use as viewport for pan.  Required.
        @param enablePan Boolean enable or disable panning (default enabled)
        @param enableZoom Boolean enable or disable zooming (default enabled)
        @param enableDrag Boolean enable or disable dragging (default disabled)
        @param zoomScale Float zoom sensitivity, defaults to .2
     **/
-    $.fn.svgPan = function(enablePan, enableZoom, enableDrag, zoomScale) {
+    $.fn.svgPan = function(viewport, enablePan, enableZoom, enableDrag, zoomScale) {
         enablePan = typeof enablePan !== 'undefined' ? enablePan : true,
         enableZoom = typeof enableZoom !== 'undefined' ? enableZoom : true,
         enableDrag = typeof enableDrag !== 'undefined' ? enableDrag : false,
         zoomScale = typeof zoomScale !== 'undefined' ? zoomScale : .2;
 
         return $.each(this, function(i, el) {
-            var $el = $(el);
+            var $el = $(el),
+            svg;
             // only call upon elements that are SVGs and haven't already been initialized.
             if($el.is('svg') && $el.data('SVGPan') !== true) {
-                init($el[0], enablePan, enableZoom, enableDrag, zoomScale);
+                svg = $el[0];
+                if(svg.getElementById(viewport)) {
+                    init($el[0], svg.getElementById('viewport'), enablePan, enableZoom, enableDrag, zoomScale);
+                } else {
+                    throw "Could not find viewport with id #" + viewport;
+                }
             }
         });
     };
