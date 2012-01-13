@@ -1,7 +1,8 @@
 # jquery-svgpan
 
-This is an an adaptation of Andrea Leofreddi's SVGPan library,
-version 1.2.2, for use as a jQuery plugin.
+This is an an adaptation of Andrea Leofreddi's [SVGPan
+library](http://code.google.com/p/svgpan/), version 1.2.2, for use as
+a jQuery plugin.
 
 When called upon SVG element(s), this will add all the capabilities of
 Andrea Leofreddi's SVGPan library to those elements.  Non-SVG elements
