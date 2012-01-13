@@ -36,7 +36,7 @@ arguments.
 ### Examples
 
 This would enable SVGPan for all SVGs currently on the page.  The
-element #viewport would be used as the viewport for each.
+element `#viewport` would be used as the viewport for each.
 
 ```javascript
     $('svg').svgPan('viewport');
