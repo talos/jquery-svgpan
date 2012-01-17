@@ -106,225 +106,249 @@
  * or implied, of Andrea Leofreddi.
  */
 
-(function($){
-    var init = function(root, svgRoot, enablePan, enableZoom, enableDrag, zoomScale) {
+/*global define, jQuery, window*/
+
+(function (factory) {
+    "use strict";
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
+    "use strict";
+    var init = function (root, svgRoot, enablePan, enableZoom, enableDrag, zoomScale) {
         //console.log(root);
 
         var state = 'none',
-        stateTarget,
-        stateOrigin,
-        stateTf,
-        svgDoc = root,
+            stateTarget,
+            stateOrigin,
+            stateTf,
+            svgDoc = root,
 
-        $root = $(root),
-        isMouseOverElem = false,
+            $root = $(root),
+            isMouseOverElem = false,
 
 
-        /**
-         * Instance an SVGPoint object with given event coordinates.
-         */
-        getEventPoint = function(evt) {
-            var p = root.createSVGPoint();
+            /**
+             * Instance an SVGPoint object with given event coordinates.
+             */
+            getEventPoint = function (evt) {
+                var p = root.createSVGPoint();
 
-            p.x = evt.clientX;
-            p.y = evt.clientY;
+                p.x = evt.clientX;
+                p.y = evt.clientY;
 
-            return p;
-        },
+                return p;
+            },
 
-        /**
-         * Sets the current transform matrix of an element.
-         */
-        setCTM = function(element, matrix) {
-            var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + "," + matrix.d + "," + matrix.e + "," + matrix.f + ")";
+            /**
+             * Sets the current transform matrix of an element.
+             */
+            setCTM = function (element, matrix) {
+                var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + "," + matrix.d + "," + matrix.e + "," + matrix.f + ")";
 
-            element.setAttribute("transform", s);
-        },
+                element.setAttribute("transform", s);
+            },
 
-        /**
-         * Dumps a matrix to a string (useful for debug).
-         */
-        dumpMatrix = function(matrix) {
-            var s = "[ " + matrix.a + ", " + matrix.c + ", " + matrix.e + "\n  " + matrix.b + ", " + matrix.d + ", " + matrix.f + "\n  0, 0, 1 ]";
+            /**
+             * Dumps a matrix to a string (useful for debug).
+             */
+            dumpMatrix = function (matrix) {
+                var s = "[ " + matrix.a + ", " + matrix.c + ", " + matrix.e + "\n  " + matrix.b + ", " + matrix.d + ", " + matrix.f + "\n  0, 0, 1 ]";
 
-            return s;
-        },
+                return s;
+            },
 
-        /**
-         * Sets attributes of an element.
-         */
-        setAttributes = function(element, attributes){
-            for (var i in attributes)
-                element.setAttributeNS(null, i, attributes[i]);
-        },
+            /**
+             * Sets attributes of an element.
+             */
+            // dead code?
+            // setAttributes = function (element, attributes) {
+            //     var i;
+            //     for (i in attributes)
+            //         element.setAttributeNS(null, i, attributes[i]);
+            // },
 
-        /**
-          * Handle mouseenter event.  This has been added to stop ignoring
-          * inputs when the mouse is over the element.
-          **/
-        handleMouseEnter = function(evt) {
-            isMouseOverElem = true;
-        },
+            /**
+             * Handle mouseenter event.  This has been added to stop ignoring
+             * inputs when the mouse is over the element.
+             **/
+            handleMouseEnter = function (evt) {
+                isMouseOverElem = true;
+            },
 
-        /**
-          * Handle mouseleave event.  This has been added to ignore
-          * inputs when the mouse is not over the element.
-          **/
-        handleMouseLeave = function(evt) {
-            isMouseOverElem = false;
-        },
+            /**
+             * Handle mouseleave event.  This has been added to ignore
+             * inputs when the mouse is not over the element.
+             **/
+            handleMouseLeave = function (evt) {
+                isMouseOverElem = false;
+            },
 
-        /**
-         * Handle mouse wheel event.
-         */
-        handleMouseWheel = function(evt) {
-            if(!enableZoom)
-                return;
+            /**
+             * Handle mouse wheel event.
+             */
+            handleMouseWheel = function (evt) {
+                if (!enableZoom) {
+                    return;
+                }
 
-            // added, we only hit this if we're over this particular element
-            if(!isMouseOverElem)
-                return;
+                // added, we only hit this if we're over this particular element
+                if (!isMouseOverElem) {
+                    return;
+                }
 
-            if(evt.preventDefault)
-                evt.preventDefault();
+                if (evt.preventDefault) {
+                    evt.preventDefault();
+                }
 
-            evt.returnValue = false;
+                evt.returnValue = false;
 
-            //var svgDoc = evt.target.ownerDocument;
+                //var svgDoc = evt.target.ownerDocument;
 
-            var delta;
+                var delta = evt.wheelDelta ? evt.wheelDelta / 360 : evt.detail / -9,
 
-            if(evt.wheelDelta)
-                delta = evt.wheelDelta / 360; // Chrome/Safari
-            else
-                delta = evt.detail / -9; // Mozilla
+                // if (evt.wheelDelta) {
+                //     delta = evt.wheelDelta / 360; // Chrome/Safari
+                // } else {
+                //     delta = evt.detail / -9; // Mozilla
+                // }
 
-            var z = Math.pow(1 + zoomScale, delta);
+                    z = Math.pow(1 + zoomScale, delta),
 
-            //var g = getRoot(svgDoc);
-            var g = svgRoot;
+                //var g = getRoot(svgDoc);
+                    g = svgRoot,
 
-            var p = getEventPoint(evt);
+                    p = getEventPoint(evt),
+                    k;
 
-            p = p.matrixTransform(g.getCTM().inverse());
+                p = p.matrixTransform(g.getCTM().inverse());
 
-            // Compute new scale matrix in current mouse position
-            var k = root.createSVGMatrix().translate(p.x, p.y).scale(z).translate(-p.x, -p.y);
+                // Compute new scale matrix in current mouse position
+                k = root.createSVGMatrix().translate(p.x, p.y).scale(z).translate(-p.x, -p.y);
 
-            setCTM(g, g.getCTM().multiply(k));
+                setCTM(g, g.getCTM().multiply(k));
 
-            if(typeof(stateTf) == "undefined")
-                stateTf = g.getCTM().inverse();
+                if (typeof stateTf === "undefined") {
+                    stateTf = g.getCTM().inverse();
+                }
 
-            stateTf = stateTf.multiply(k.inverse());
-        },
+                stateTf = stateTf.multiply(k.inverse());
+            },
 
-        /**
-         * Handle mouse move event.
-         */
-        handleMouseMove = function(evt) {
+            /**
+             * Handle mouse move event.
+             */
+            handleMouseMove = function (evt) {
 
-            if(evt.preventDefault) {
-                evt.preventDefault();
-            }
+                if (evt.preventDefault) {
+                    evt.preventDefault();
+                }
 
-            evt.returnValue = false;
+                evt.returnValue = false;
 
-            //var svgDoc = evt.target.ownerDocument;
+                //var svgDoc = evt.target.ownerDocument;
 
-            //var g = getRoot(svgDoc);
+                //var g = getRoot(svgDoc);
 
-            var g = svgRoot;
+                var g = svgRoot,
+                    p;
 
-            if(state === 'pan' && enablePan) {
-                // Pan mode
-                var p = getEventPoint(evt).matrixTransform(stateTf);
+                if (state === 'pan' && enablePan) {
+                    // Pan mode
+                    p = getEventPoint(evt).matrixTransform(stateTf);
 
-                setCTM(g, stateTf.inverse().translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
-            } else if(state === 'drag' && enableDrag) {
-                // Drag mode
-                var p = getEventPoint(evt).matrixTransform(g.getCTM().inverse());
+                    setCTM(g, stateTf.inverse().translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
+                } else if (state === 'drag' && enableDrag) {
+                    // Drag mode
+                    p = getEventPoint(evt).matrixTransform(g.getCTM().inverse());
 
-                setCTM(stateTarget, root.createSVGMatrix().translate(p.x - stateOrigin.x, p.y - stateOrigin.y).multiply(g.getCTM().inverse()).multiply(stateTarget.getCTM()));
+                    setCTM(stateTarget, root.createSVGMatrix().translate(p.x - stateOrigin.x, p.y - stateOrigin.y).multiply(g.getCTM().inverse()).multiply(stateTarget.getCTM()));
 
-                stateOrigin = p;
-            }
-        },
+                    stateOrigin = p;
+                }
+            },
 
-        /**
-         * Handle click event.
-         */
-        handleMouseDown = function(evt) {
-            if(evt.preventDefault)
-                evt.preventDefault();
+            /**
+             * Handle click event.
+             */
+            handleMouseDown = function (evt) {
+                if (evt.preventDefault) {
+                    evt.preventDefault();
+                }
 
-            evt.returnValue = false;
+                evt.returnValue = false;
 
-            // bind our mousemove listener only when we have a mousedown
-            //$root.bind('mousemove', handleMouseMove );
+                // bind our mousemove listener only when we have a mousedown
+                //$root.bind('mousemove', handleMouseMove );
 
-            //var svgDoc = evt.target.ownerDocument;
+                //var svgDoc = evt.target.ownerDocument;
 
-            //var g = getRoot(svgDoc);
-            var g = svgRoot;
+                //var g = getRoot(svgDoc);
+                var g = svgRoot;
 
-            if(
-                evt.target.tagName == "svg" 
-                    || !enableDrag // Pan anyway when drag is disabled and the user clicked on an element 
-            ) {
-                // Pan mode
-                state = 'pan';
+                // Pan anyway when drag is disabled and the user clicked on an element
+                if (evt.target.tagName === "svg" || !enableDrag) {
+                    // Pan mode
+                    state = 'pan';
 
-                stateTf = g.getCTM().inverse();
+                    stateTf = g.getCTM().inverse();
 
-                stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
-            } else {
-                // Drag mode
-                state = 'drag';
+                    stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
+                } else {
+                    // Drag mode
+                    state = 'drag';
 
-                stateTarget = evt.target;
+                    stateTarget = evt.target;
 
-                stateTf = g.getCTM().inverse();
+                    stateTf = g.getCTM().inverse();
 
-                stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
-            }
-        },
+                    stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
+                }
+            },
 
-        /**
-         * Handle mouse button release event.
-         */
-        handleMouseUp = function(evt) {
-            if(evt.preventDefault)
-                evt.preventDefault();
+            /**
+             * Handle mouse button release event.
+             */
+            handleMouseUp = function (evt) {
+                if (evt.preventDefault) {
+                    evt.preventDefault();
+                }
 
-            evt.returnValue = false;
+                evt.returnValue = false;
 
-            // unbind our mousemove listener immediately when we have a mouseup
-            //$root.unbind('mousemove', handleMouseMove );
+                // unbind our mousemove listener immediately when we have a mouseup
+                //$root.unbind('mousemove', handleMouseMove );
 
-            //var svgDoc = evt.target.ownerDocument;
+                //var svgDoc = evt.target.ownerDocument;
 
-            if(state == 'pan' || state == 'drag') {
-                // Quit pan mode
-                state = '';
-            }
-        };
+                if (state === 'pan' || state === 'drag') {
+                    // Quit pan mode
+                    state = '';
+                }
+            };
 
         /**
          * Register handlers
          */
 
         // MODIFICATION: registers events through jQuery
-        $root.bind('mouseup', handleMouseUp )
-            .bind('mousedown', handleMouseDown )
-            .bind('mousemove', handleMouseMove ) // this is now bound & unbound upon mousedown & mouseup
-            .bind('mouseenter', handleMouseEnter ) // added 
-            .bind('mouseleave', handleMouseLeave ); // added
+        $root.bind('mouseup', handleMouseUp)
+            .bind('mousedown', handleMouseDown)
+            .bind('mousemove', handleMouseMove) // this is now bound & unbound upon mousedown & mouseup
+            .bind('mouseenter', handleMouseEnter) // added 
+            .bind('mouseleave', handleMouseLeave); // added
 
-        if(navigator.userAgent.toLowerCase().indexOf('webkit') >= 0)
+        //if (navigator.userAgent.toLowerCase().indexOf('webkit') >= 0) {
+
+        if ($.browser.webkit) {
             window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
-        else
+        } else {
             window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Others
+        }
 
     };
 
@@ -337,19 +361,19 @@
        @param enableDrag Boolean enable or disable dragging (default disabled)
        @param zoomScale Float zoom sensitivity, defaults to .2
     **/
-    $.fn.svgPan = function(viewport, enablePan, enableZoom, enableDrag, zoomScale) {
-        enablePan = typeof enablePan !== 'undefined' ? enablePan : true,
-        enableZoom = typeof enableZoom !== 'undefined' ? enableZoom : true,
-        enableDrag = typeof enableDrag !== 'undefined' ? enableDrag : false,
-        zoomScale = typeof zoomScale !== 'undefined' ? zoomScale : .2;
+    $.fn.svgPan = function (viewport, enablePan, enableZoom, enableDrag, zoomScale) {
+        enablePan = typeof enablePan !== 'undefined' ? enablePan : true;
+        enableZoom = typeof enableZoom !== 'undefined' ? enableZoom : true;
+        enableDrag = typeof enableDrag !== 'undefined' ? enableDrag : false;
+        zoomScale = typeof zoomScale !== 'undefined' ? zoomScale : 0.2;
 
-        return $.each(this, function(i, el) {
+        return $.each(this, function (i, el) {
             var $el = $(el),
-            svg;
+                svg;
             // only call upon elements that are SVGs and haven't already been initialized.
-            if($el.is('svg') && $el.data('SVGPan') !== true) {
+            if ($el.is('svg') && $el.data('SVGPan') !== true) {
                 svg = $el[0];
-                if(svg.getElementById(viewport)) {
+                if (svg.getElementById(viewport)) {
                     init($el[0], svg.getElementById('viewport'), enablePan, enableZoom, enableDrag, zoomScale);
                 } else {
                     throw "Could not find viewport with id #" + viewport;
@@ -357,4 +381,4 @@
             }
         });
     };
-})(jQuery);
+}));
