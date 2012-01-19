@@ -355,13 +355,13 @@
     /**
        Enable SVG panning on an SVG element.
 
-       @param viewport the ID of an element to use as viewport for pan.  Required.
+       @param viewportId the ID of an element to use as viewport for pan.  Required.
        @param enablePan Boolean enable or disable panning (default enabled)
        @param enableZoom Boolean enable or disable zooming (default enabled)
        @param enableDrag Boolean enable or disable dragging (default disabled)
        @param zoomScale Float zoom sensitivity, defaults to .2
     **/
-    $.fn.svgPan = function (viewport, enablePan, enableZoom, enableDrag, zoomScale) {
+    $.fn.svgPan = function (viewportId, enablePan, enableZoom, enableDrag, zoomScale) {
         enablePan = typeof enablePan !== 'undefined' ? enablePan : true;
         enableZoom = typeof enableZoom !== 'undefined' ? enableZoom : true;
         enableDrag = typeof enableDrag !== 'undefined' ? enableDrag : false;
@@ -369,12 +369,13 @@
 
         return $.each(this, function (i, el) {
             var $el = $(el),
-                svg;
+                svg,
+                viewport;
             // only call upon elements that are SVGs and haven't already been initialized.
             if ($el.is('svg') && $el.data('SVGPan') !== true) {
-                svg = $el[0];
-                if (svg.getElementById(viewport)) {
-                    init($el[0], svg.getElementById('viewport'), enablePan, enableZoom, enableDrag, zoomScale);
+                viewport = $el.find('#' + viewportId)[0];
+                if (viewport) {
+                    init($el[0], viewport, enablePan, enableZoom, enableDrag, zoomScale);
                 } else {
                     throw "Could not find viewport with id #" + viewport;
                 }
