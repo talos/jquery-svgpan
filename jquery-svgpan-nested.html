@@ -1,0 +1,55 @@
+<html><head>
+    <!-- jQuery -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+    <script type="text/javascript" src="http://talos.github.com/jquery-svgpan/jquery-svgpan.js"></script>
+    <title>jquery-svgpan Nested SVGs</title>
+
+    <style type="text/css">
+      body {
+      font-family: Helvetica, sans-serif;
+      }
+
+      #instructions {
+      border: 1px solid #aaa;
+      margin: .5em;
+      padding: .5em;
+      }
+
+      svg {
+      border: 1px solid #aaa;
+      }
+
+      a:link {
+      color: #aaa;
+}
+      a:visited {
+      color: #aaa;
+}
+
+    </style>
+  </head>
+
+  <body>
+      <div id="instructions">
+        SVGPan in a nested SVG doesn't work.  The same effect can
+        be achieved by placing the inner SVG inside a viewport and calling
+        SVGPan on the outer SVG.
+      </div>
+<svg height="100%" id="outer" style="position=absolute;display=block;" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+  <g id="viewport" transform="scale(1) translate(-224, -128)">
+    <svg overflow="visible" x="50%" y="50%" id="inner">
+      <rect height="256" style="fill:grey;stroke:black;" width="448"></rect>
+    </svg>
+  </g>
+</svg>
+    <script type="text/javascript">
+
+$(document).ready(function() {
+   $('svg#outer').svgPan('viewport');
+});
+
+    </script>
+  
+
+</body></html>
