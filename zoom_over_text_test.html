@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Page</title>
+	<style type="text/css">
+		text
+		{
+			cursor: default;
+		}
+	</style>
+</head>
+<body>
+    <div id="outer-div" style="background-color: Red; position: absolute; top: 25%; left: 25%; bottom: 25%; right: 25%">
+        <svg class="outer-svg1" version="1.1" width="50%" height="50%" overflow="hidden" style="background-color: Orange;">
+			<g id="viewport">
+				<rect x="45%" y="45%" width="10%" height="10%" fill="Purple"></rect>
+				<text x="50%" y="50%" font-size="1em" font-family="Verdana">Hello World!</text>
+			</g>
+			<g id="reset">
+				<rect x="0" y="0" width="20" height="20" fill="Yellow"></rect>
+			</g>
+			<g id="zoomIn">
+				<rect x="0" y="25" width="20" height="20" fill="Green"></rect>
+			</g>
+			<g id="zoomOut">
+				<rect x="0" y="50" width="20" height="20" fill="Blue"></rect>
+			</g>
+        </svg><svg class="outer-svg1" version="1.1" width="50%" height="50%" overflow="hidden" style="background-color: Orange;">
+			<g id="viewport">
+				<rect x="45%" y="45%" width="10%" height="10%" fill="Purple"></rect>
+				<text x="50%" y="50%" font-size="1em" font-family="Verdana">Hello World!</text>
+			</g>
+			<g id="reset">
+				<rect x="0" y="0" width="20" height="20" fill="Yellow"></rect>
+			</g>
+			<g id="zoomIn">
+				<rect x="0" y="25" width="20" height="20" fill="Green"></rect>
+			</g>
+			<g id="zoomOut">
+				<rect x="0" y="50" width="20" height="20" fill="Blue"></rect>
+			</g>
+        </svg>
+		<svg class="outer-svg2" version="1.1" width="50%" height="50%" overflow="hidden" style="background-color: Orange;">
+			<g id="viewport">
+				<svg id="inner-svg" version="1.1" x="50%" y="50%" width="50%" height="50%" style="background-color: Green;">
+					<rect x="45%" y="45%" width="10%" height="10%" fill="Purple"></rect>
+					<text x="50%" y="50%" font-size="1em" font-family="Verdana">Hello World!</text>
+				</svg>
+			</g>
+			<g id="reset">
+				<rect x="0" y="0" width="20" height="20" fill="Yellow"></rect>
+			</g>
+        </svg><svg class="outer-svg1" version="1.1" width="50%" height="50%" overflow="hidden" style="background-color: Orange;">
+			<g id="viewport">
+				<rect x="45%" y="45%" width="10%" height="10%" fill="Purple"></rect>
+				<text x="50%" y="50%" font-size="1em" font-family="Verdana">Hello World!</text>
+			</g>
+			<g id="reset">
+				<rect x="0" y="0" width="20" height="20" fill="Yellow"></rect>
+			</g>
+			<g id="zoomIn">
+				<rect x="0" y="25" width="20" height="20" fill="Green"></rect>
+			</g>
+			<g id="zoomOut">
+				<rect x="0" y="50" width="20" height="20" fill="Blue"></rect>
+			</g>
+        </svg>
+    </div>
+
+    <script type="text/javascript" src="../scripts/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../scripts/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="jquery-svgpan.js"></script>
+	
+	<script type="text/javascript">
+		var panObjects = $(".outer-svg1").svgPan("viewport", "reset", "zoomIn", "zoomOut");
+		var panObjects = $(".outer-svg2").svgPan("viewport", "reset");
+	</script>
+</body>
+</html>
