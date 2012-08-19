@@ -346,8 +346,10 @@
 
         if ($.browser.webkit) {
             window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
+        } else if ($.browser.mozilla) {
+            window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Firefox
         } else {
-            window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Others
+            window.addEventListener('mousewheel', handleMouseWheel, false); // others (Opera, Explorer9)
         }
 
     };
