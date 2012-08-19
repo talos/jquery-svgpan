@@ -104,7 +104,7 @@ $(document).ready(function() {
      .attr("class", "PiYG")
      .on("mousemove", update);
 
-// This was added 
+// This was added to the example
  var g = svg.append('g')
      .attr('id', 'viewport');
  
@@ -121,7 +121,15 @@ $(document).ready(function() {
      .attr("r", 2);
  
  function update() {
-   vertices[0] = d3.svg.mouse(this);
+
+   // Make sure to filter the mouse event to D3 through our SVGPan
+   // transformation
+   var p = this.createSVGPoint();
+   p.x = d3.mouse(this)[0];
+   p.y = d3.mouse(this)[1];
+   p = p.matrixTransform(this.getElementById("viewport").getCTM().inverse());
+   vertices[0] = [p.x, p.y];
+
    g.selectAll("path")
        .data(d3.geom.voronoi(vertices)
        .map(function(d) { return "M" + d.join("L") + "Z"; }))
