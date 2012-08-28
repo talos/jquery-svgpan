@@ -119,240 +119,234 @@
     }
 }(function ($) {
     "use strict";
-    var init = function (root, svgRoot, enablePan, enableZoom, enableDrag, zoomScale) {
-        //console.log(root);
+    var NONE = 0,
+        PAN = 1,
+        DRAG = 2,
+        init = function (root, svgRoot, enablePan, enableZoom, enableDrag, zoomScale) {
 
-        var state = 'none',
-            stateTarget,
-            stateOrigin,
-            stateTf,
-            svgDoc = root,
+            var state = NONE,
+                stateTarget,
+                stateOrigin,
+                stateTf,
+                svgDoc = root,
+                $root = $(root),
+                $parent = $root.parent(),
+                recentOffset = $root.offset(),
 
-            $root = $(root),
-            isMouseOverElem = false,
+                // FF sometimes doesn't calculate this anything near correctly
+                // for SVGs.
+                offsetIsBroken = Math.abs($root.offset().left) > 1e5,
+                isMouseOverElem = false,
 
+                /**
+                 * Dumps a matrix to a string (useful for debug).
+                 */
+                dumpMatrix = function (matrix) {
+                    var s = "[ " + matrix.a + ", " + matrix.c + ", " + matrix.e + "\n  " + matrix.b + ", " + matrix.d + ", " + matrix.f + "]";
+
+                    return s;
+                },
+
+                /**
+                 * Instance an SVGPoint object with given event coordinates.
+                 */
+                getEventPoint = function (evt) {
+                    var p = root.createSVGPoint(),
+                        offsetX = evt.offsetX,
+                        offsetY = evt.offsetY,
+                        offset,
+                        ctm,
+                        matrix;
+
+                    if (typeof offsetX === "undefined" || typeof offsetY === "undefined") {
+                        offset = offsetIsBroken ? $parent.offset() : recentOffset;
+                        offsetX = evt.pageX - offset.left;
+                        offsetY = evt.pageY - offset.top;
+                    }
+
+                    p.x = offsetX;
+                    p.y = offsetY;
+
+                    return p;
+                },
+
+                /**
+                 * Sets the current transform matrix of an element.
+                 */
+                setCTM = function (element, matrix) {
+                    var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + "," + matrix.d + "," + matrix.e + "," + matrix.f + ")";
+
+                    element.setAttribute("transform", s);
+                },
+
+                /**
+                 * Handle mouse wheel event.
+                 */
+                handleMouseWheel = function (evt) {
+                    if (!enableZoom) {
+                        return;
+                    }
+
+                    if (!isMouseOverElem) {
+                        return;
+                    }
+
+                    if (evt.preventDefault) {
+                        evt.preventDefault();
+                    }
+
+                    evt.returnValue = false;
+                    recentOffset = $root.offset();
+
+                    var delta = evt.wheelDelta ? evt.wheelDelta / 360 : evt.detail / -9,
+                        z = Math.pow(1 + zoomScale, delta),
+                        g = svgRoot,
+                        p = getEventPoint(evt),
+                        k;
+
+                    p = p.matrixTransform(g.getCTM().inverse());
+
+                    // Compute new scale matrix in current mouse position
+                    k = root.createSVGMatrix().translate(p.x, p.y).scale(z).translate(-p.x, -p.y);
+
+                    setCTM(g, g.getCTM().multiply(k));
+
+                    if (typeof stateTf === "undefined") {
+                        stateTf = g.getCTM().inverse();
+                    }
+
+                    stateTf = stateTf.multiply(k.inverse());
+                },
+
+                /**
+                 * Handle mouse move event.
+                 */
+                handleMouseMove = function (evt) {
+
+                    if (evt.preventDefault) {
+                        evt.preventDefault();
+                    }
+
+                    evt.returnValue = false;
+
+                    var g = svgRoot,
+                        p;
+
+                    if (state === PAN && enablePan) {
+                        // Pan mode
+                        p = getEventPoint(evt).matrixTransform(stateTf);
+
+                        setCTM(g, stateTf.inverse().translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
+                    } else if (state === DRAG && enableDrag) {
+                        // Drag mode
+                        p = getEventPoint(evt).matrixTransform(g.getCTM().inverse());
+
+                        setCTM(stateTarget, root.createSVGMatrix().translate(p.x - stateOrigin.x, p.y - stateOrigin.y).multiply(g.getCTM().inverse()).multiply(stateTarget.getCTM()));
+
+                        stateOrigin = p;
+                    }
+                },
+
+                /**
+                 * Handle mouseenter event.  This has been added to stop ignoring
+                 * inputs when the mouse is over the element.
+                 **/
+                handleMouseEnter = function (evt) {
+                    // bind our mousemove listener only when we have mouse in view
+                    if (!isMouseOverElem) {
+                        recentOffset = $root.offset();
+                        $root.bind('mousemove', handleMouseMove);
+                        isMouseOverElem = true;
+                    }
+                },
+
+                /**
+                 * Handle mouseleave event.  This has been added to ignore
+                 * inputs when the mouse is not over the element.
+                 **/
+                handleMouseLeave = function (evt) {
+                    // unbind our mousemove listener only when we no longer have mouse in view
+                    if (isMouseOverElem) {
+                        $root.unbind('mousemove', handleMouseMove);
+                        isMouseOverElem = false;
+                    }
+                    state = NONE;
+                },
+
+                /**
+                 * Handle click event.
+                 */
+                handleMouseDown = function (evt) {
+                    if (evt.preventDefault) {
+                        evt.preventDefault();
+                    }
+
+                    evt.returnValue = false;
+
+                    //var svgDoc = evt.target.ownerDocument;
+
+                    //var g = getRoot(svgDoc);
+                    var g = svgRoot;
+
+                    // Pan anyway when drag is disabled and the user clicked on an element
+                    if (evt.target.tagName === "svg" || !enableDrag) {
+                        // Pan mode
+                        state = PAN;
+
+                        stateTf = g.getCTM().inverse();
+
+                        stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
+                    } else {
+                        // Drag mode
+                        state = DRAG;
+
+                        stateTarget = evt.target;
+
+                        stateTf = g.getCTM().inverse();
+
+                        stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
+                    }
+                },
+
+                /**
+                 * Handle mouse button release event.
+                 */
+                handleMouseUp = function (evt) {
+                    if (evt.preventDefault) {
+                        evt.preventDefault();
+                    }
+
+                    evt.returnValue = false;
+
+                    //var svgDoc = evt.target.ownerDocument;
+
+                    if (state === PAN || state === DRAG) {
+                        // Quit pan mode
+                        state = NONE;
+                    }
+                };
 
             /**
-             * Instance an SVGPoint object with given event coordinates.
+             * Register handlers
              */
-            getEventPoint = function (evt) {
-                var p = root.createSVGPoint();
 
-                p.x = evt.offsetX;
-                p.y = evt.offsetY;
+            // MODIFICATION: registers events through jQuery
+            $root.bind('mouseup', handleMouseUp)
+                .bind('mousedown', handleMouseDown)
+                .bind('mouseenter', handleMouseEnter)
+                .bind('mouseleave', handleMouseLeave);
 
-                return p;
-            },
+            //if (navigator.userAgent.toLowerCase().indexOf('webkit') >= 0) {
 
-            /**
-             * Sets the current transform matrix of an element.
-             */
-            setCTM = function (element, matrix) {
-                var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + "," + matrix.d + "," + matrix.e + "," + matrix.f + ")";
+            if ($.browser.webkit) {
+                window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
+            } else if ($.browser.mozilla) {
+                window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Firefox
+            } else {
+                window.addEventListener('mousewheel', handleMouseWheel, false); // others (Opera, Explorer9)
+            }
 
-                element.setAttribute("transform", s);
-            },
-
-            /**
-             * Dumps a matrix to a string (useful for debug).
-             */
-            dumpMatrix = function (matrix) {
-                var s = "[ " + matrix.a + ", " + matrix.c + ", " + matrix.e + "\n  " + matrix.b + ", " + matrix.d + ", " + matrix.f + "\n  0, 0, 1 ]";
-
-                return s;
-            },
-
-            /**
-             * Sets attributes of an element.
-             */
-            // dead code?
-            // setAttributes = function (element, attributes) {
-            //     var i;
-            //     for (i in attributes)
-            //         element.setAttributeNS(null, i, attributes[i]);
-            // },
-
-            /**
-             * Handle mouseenter event.  This has been added to stop ignoring
-             * inputs when the mouse is over the element.
-             **/
-            handleMouseEnter = function (evt) {
-                isMouseOverElem = true;
-            },
-
-            /**
-             * Handle mouseleave event.  This has been added to ignore
-             * inputs when the mouse is not over the element.
-             **/
-            handleMouseLeave = function (evt) {
-                isMouseOverElem = false;
-            },
-
-            /**
-             * Handle mouse wheel event.
-             */
-            handleMouseWheel = function (evt) {
-                if (!enableZoom) {
-                    return;
-                }
-
-                // added, we only hit this if we're over this particular element
-                if (!isMouseOverElem) {
-                    return;
-                }
-
-                if (evt.preventDefault) {
-                    evt.preventDefault();
-                }
-
-                evt.returnValue = false;
-
-                //var svgDoc = evt.target.ownerDocument;
-
-                var delta = evt.wheelDelta ? evt.wheelDelta / 360 : evt.detail / -9,
-
-                // if (evt.wheelDelta) {
-                //     delta = evt.wheelDelta / 360; // Chrome/Safari
-                // } else {
-                //     delta = evt.detail / -9; // Mozilla
-                // }
-
-                    z = Math.pow(1 + zoomScale, delta),
-
-                //var g = getRoot(svgDoc);
-                    g = svgRoot,
-
-                    p = getEventPoint(evt),
-                    k;
-
-                p = p.matrixTransform(g.getCTM().inverse());
-
-                // Compute new scale matrix in current mouse position
-                k = root.createSVGMatrix().translate(p.x, p.y).scale(z).translate(-p.x, -p.y);
-
-                setCTM(g, g.getCTM().multiply(k));
-
-                if (typeof stateTf === "undefined") {
-                    stateTf = g.getCTM().inverse();
-                }
-
-                stateTf = stateTf.multiply(k.inverse());
-            },
-
-            /**
-             * Handle mouse move event.
-             */
-            handleMouseMove = function (evt) {
-
-                if (evt.preventDefault) {
-                    evt.preventDefault();
-                }
-
-                evt.returnValue = false;
-
-                //var svgDoc = evt.target.ownerDocument;
-
-                //var g = getRoot(svgDoc);
-
-                var g = svgRoot,
-                    p;
-
-                if (state === 'pan' && enablePan) {
-                    // Pan mode
-                    p = getEventPoint(evt).matrixTransform(stateTf);
-
-                    setCTM(g, stateTf.inverse().translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
-                } else if (state === 'drag' && enableDrag) {
-                    // Drag mode
-                    p = getEventPoint(evt).matrixTransform(g.getCTM().inverse());
-
-                    setCTM(stateTarget, root.createSVGMatrix().translate(p.x - stateOrigin.x, p.y - stateOrigin.y).multiply(g.getCTM().inverse()).multiply(stateTarget.getCTM()));
-
-                    stateOrigin = p;
-                }
-            },
-
-            /**
-             * Handle click event.
-             */
-            handleMouseDown = function (evt) {
-                if (evt.preventDefault) {
-                    evt.preventDefault();
-                }
-
-                evt.returnValue = false;
-
-                // bind our mousemove listener only when we have a mousedown
-                //$root.bind('mousemove', handleMouseMove );
-
-                //var svgDoc = evt.target.ownerDocument;
-
-                //var g = getRoot(svgDoc);
-                var g = svgRoot;
-
-                // Pan anyway when drag is disabled and the user clicked on an element
-                if (evt.target.tagName === "svg" || !enableDrag) {
-                    // Pan mode
-                    state = 'pan';
-
-                    stateTf = g.getCTM().inverse();
-
-                    stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
-                } else {
-                    // Drag mode
-                    state = 'drag';
-
-                    stateTarget = evt.target;
-
-                    stateTf = g.getCTM().inverse();
-
-                    stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
-                }
-            },
-
-            /**
-             * Handle mouse button release event.
-             */
-            handleMouseUp = function (evt) {
-                if (evt.preventDefault) {
-                    evt.preventDefault();
-                }
-
-                evt.returnValue = false;
-
-                // unbind our mousemove listener immediately when we have a mouseup
-                //$root.unbind('mousemove', handleMouseMove );
-
-                //var svgDoc = evt.target.ownerDocument;
-
-                if (state === 'pan' || state === 'drag') {
-                    // Quit pan mode
-                    state = '';
-                }
-            };
-
-        /**
-         * Register handlers
-         */
-
-        // MODIFICATION: registers events through jQuery
-        $root.bind('mouseup', handleMouseUp)
-            .bind('mousedown', handleMouseDown)
-            .bind('mousemove', handleMouseMove) // this is now bound & unbound upon mousedown & mouseup
-            .bind('mouseenter', handleMouseEnter) // added 
-            .bind('mouseleave', handleMouseLeave); // added
-
-        //if (navigator.userAgent.toLowerCase().indexOf('webkit') >= 0) {
-
-        if ($.browser.webkit) {
-            window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
-        } else if ($.browser.mozilla) {
-            window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Firefox
-        } else {
-            window.addEventListener('mousewheel', handleMouseWheel, false); // others (Opera, Explorer9)
-        }
-
-    };
+        };
 
     /**
        Enable SVG panning on an SVG element.
