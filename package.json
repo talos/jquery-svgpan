@@ -1,6 +1,6 @@
 {
     "name": "jquery-svgpan",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "title": "jQuery-svgpan",
     "author": {
         "name": "John Krauss",
@@ -13,7 +13,7 @@
         }
     ],
     "dependencies": {
-        "jquery": "1.7"
+        "jquery": ">= 1.7"
     },
     "description": "This plugin provides a jQuery hook to use Andrea Leofreddi's SVGPan library on an arbitrary number of SVGs.",
     "keywords": [
