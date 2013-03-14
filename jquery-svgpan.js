@@ -338,13 +338,8 @@
 
             //if (navigator.userAgent.toLowerCase().indexOf('webkit') >= 0) {
 
-            if ($.browser.webkit) {
-                window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
-            } else if ($.browser.mozilla) {
-                window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Firefox
-            } else {
-                window.addEventListener('mousewheel', handleMouseWheel, false); // others (Opera, Explorer9)
-            }
+            window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari/others
+            window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Firefox
 
         };
 
