@@ -368,7 +368,7 @@
                 if (viewport) {
                     init($el[0], viewport, enablePan, enableZoom, enableDrag, zoomScale);
                 } else {
-                    throw "Could not find viewport with id #" + viewport;
+                    throw "Could not find viewport with id #" + viewportId;
                 }
             }
         });
