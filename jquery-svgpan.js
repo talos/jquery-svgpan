@@ -300,7 +300,7 @@
                         // Drag mode
                         state = DRAG;
 
-                        stateTarget = evt.target.parentNode;
+                        stateTarget = evt.target;
 
                         stateTf = g.getCTM().inverse();
 
