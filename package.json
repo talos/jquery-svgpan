@@ -1,0 +1,35 @@
+{
+    "name": "jquery-svgpan",
+    "version": "0.1.6",
+    "title": "jQuery-svgpan",
+    "author": {
+        "name": "John Krauss",
+        "url": "https://github.com/talos"
+    },
+    "licenses": [
+        {
+            "type": "BSD",
+            "url": "LICENSE.txt"
+        }
+    ],
+    "dependencies": {
+        "jquery": ">= 1.7"
+    },
+    "description": "This plugin provides a jQuery hook to use Andrea Leofreddi's SVGPan library on an arbitrary number of SVGs.",
+    "keywords": [
+        "svg",
+        "pan",
+        "zoom"
+    ],
+    "homepage": "https://github.com/talos/jquery-svgpan",
+    "maintainers": [
+        {
+            "name": "John Krauss",
+            "url": "https://github.com/talos"
+        }
+    ],
+    "files": [
+        "jquery-svgpan.js",
+        "jquery-svgpan.min.js"
+    ]
+}
