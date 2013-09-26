@@ -122,7 +122,7 @@
     var NONE = 0,
         PAN = 1,
         DRAG = 2,
-        init = function (root, svgRoot, enablePan, enableZoom, enableDrag, zoomScale) {
+        init = function (root, svgRoot, enablePan, enableZoom, enableDrag, zoomScale, enableSnap, gridSize) {
 
             var state = NONE,
                 stateTarget,
@@ -336,7 +336,6 @@
                         p,
                         targetX,
                         targetY,
-                        gridSize,
                         stateTarget = evt.target;
 
                     if (state === PAN || state === DRAG) {
