@@ -1,4 +1,4 @@
-# jquery-svgpan
+# jquery-svgpansnap
 
 This is an an adaptation of Andrea Leofreddi's [SVGPan library][],
 version 1.2.2, for use as a [jQuery][] plugin.
@@ -17,7 +17,7 @@ other means.
 
  [d3 visualization]: http://mbostock.github.com/d3/
 
-[See it in action!](http://talos.github.com/jquery-svgpan/demo.html)
+[See it in action!](http://http://jsfiddle.net/mvanlonden/G8AgU/)
 
 ### Usage
 
@@ -61,12 +61,15 @@ Fork jquery-svgpan at
 
 * <http://www.github.com/talos/jquery-svgpan>
 
+Fork jquery-svgpansnap at
+
+* <http://www.github.com/mvanlonden/jquery-svgpansnap>
+
 Snapping added by Melchert van Londen
 
-*<http://github.com/mvanlonden> melvanlonden@gmail.com
+* <http://github.com/mvanlonden/jquery-svgpansnap> me@lchert.com
 
-CDN jquery-svgpan from
+CDN jquery-svgpansnap from
 
-* <http://talos.github.com/jquery-svgpan/jquery-svgpan.js>
+* <http://mvanlonden.github.com/jquery-svgpansnap/jquery-svgpansnap.js>
 
-* <http://talos.github.com/jquery-svgpan/jquery-svgpan.min.js>
