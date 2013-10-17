@@ -1,4 +1,4 @@
-# jquery-svgpan
+# jquery-svgpansnap
 
 This is an an adaptation of Andrea Leofreddi's [SVGPan library][],
 version 1.2.2, for use as a [jQuery][] plugin.
@@ -17,21 +17,23 @@ other means.
 
  [d3 visualization]: http://mbostock.github.com/d3/
 
-[See it in action!](http://talos.github.com/jquery-svgpan/demo.html)
+[See it in action!](http://http://jsfiddle.net/mvanlonden/G8AgU/)
 
 ### Usage
 
-You can configure the behaviour of the pan/zoom/drag by passing
+You can configure the behaviour of the pan/zoom/drag/snap by passing
 arguments.
 
 * `viewportId`: String ID of the root SVG element.
 * `enablePan`: Boolean enable or disable panning (default enabled)
 * `enableZoom`: Boolean enable or disable zooming (default enabled)
 * `enableDrag`: Boolean enable or disable dragging (default disabled)
+* `enableSnap`: Boolean enable or disable snapping (default enabled)
 * `zoomScale`: Float zoom sensitivity, defaults to .2
+* `gridSize`: Float snap grid size, defaults to 70
 
 ```javascript
-    $(selector).svgPan(viewportId, enablePan, enableZoom, enableDrag, zoomScale);
+    $(selector).svgPan(viewport, enablePan, enableZoom, enableDrag, zoomScale, enableSnap, gridSize);
 ```
 
 ### Examples
@@ -59,8 +61,15 @@ Fork jquery-svgpan at
 
 * <http://www.github.com/talos/jquery-svgpan>
 
-CDN jquery-svgpan from
+Fork jquery-svgpansnap at
 
-* <http://talos.github.com/jquery-svgpan/jquery-svgpan.js>
+* <http://www.github.com/mvanlonden/jquery-svgpansnap>
 
-* <http://talos.github.com/jquery-svgpan/jquery-svgpan.min.js>
+Snapping added by Melchert van Londen
+
+* <http://github.com/mvanlonden/jquery-svgpansnap> me@lchert.com
+
+CDN jquery-svgpansnap from
+
+* <http://mvanlonden.github.com/jquery-svgpansnap/jquery-svgpansnap.js>
+
