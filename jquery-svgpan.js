@@ -336,6 +336,10 @@
                 .bind('mouseenter', handleMouseEnter)
                 .bind('mouseleave', handleMouseLeave);
 
+            // Adding from https://code.google.com/p/svgpan/issues/detail?id=4
+            setCTM(svgRoot, svgRoot.getCTM());
+            $root.removeAttr("viewBox");
+
             //if (navigator.userAgent.toLowerCase().indexOf('webkit') >= 0) {
 
             window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari/others
