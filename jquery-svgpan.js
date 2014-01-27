@@ -152,20 +152,10 @@
                  */
                 getEventPoint = function (evt) {
                     var p = root.createSVGPoint(),
-                        offsetX = evt.offsetX,
-                        offsetY = evt.offsetY,
-                        offset,
-                        ctm,
-                        matrix;
+                        offset = $parent.offset();
 
-                    if (typeof offsetX === "undefined" || typeof offsetY === "undefined") {
-                        offset = offsetIsBroken ? $parent.offset() : recentOffset;
-                        offsetX = evt.pageX - offset.left;
-                        offsetY = evt.pageY - offset.top;
-                    }
-
-                    p.x = offsetX;
-                    p.y = offsetY;
+                    p.x = evt.pageX - offset.left;
+                    p.y = evt.pageY - offset.top;
 
                     return p;
                 },
