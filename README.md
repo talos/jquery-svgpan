@@ -1,6 +1,6 @@
 # jquery-svgpan
 
-This is an an adaptation of Andrea Leofreddi's [SVGPan library][],
+This is an adaptation of Andrea Leofreddi's [SVGPan library][],
 version 1.2.2, for use as a [jQuery][] plugin.
 
  [SVGPan library]: http://code.google.com/p/svgpan/
