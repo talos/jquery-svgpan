@@ -17,7 +17,7 @@ other means.
 
  [d3 visualization]: http://mbostock.github.com/d3/
 
-[See it in action!](http://talos.github.com/jquery-svgpan/demo.html)
+[See it in action!](http://talos.github.io/jquery-svgpan/demo.html)
 
 ### Usage
 
